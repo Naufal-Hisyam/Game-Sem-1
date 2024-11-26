@@ -3,6 +3,7 @@
 #include <windows.h>
 #include <conio.h>
 #include <ctime>
+#include <fstream>
 
 using namespace std;
 
@@ -15,6 +16,102 @@ void gotoxy(int x, int y) {
     c.X = x;
     c.Y = y;
     SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), c);
+}
+
+bool isAccountExist(const string& username, const string& password) {
+    ifstream file("accounts.txt");
+    string storedUsername, storedPassword;
+    while (file >> storedUsername >> storedPassword) {
+        if (storedUsername == username && storedPassword == password) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void registerAccount() {
+    string username, password;
+    gotoxy(55, 20); cout << "=== Register ===" << endl;
+    gotoxy(50, 22); cout << "Username: ";
+    cin >> username;
+    gotoxy(50, 23); cout << "Password: ";
+    cin >> password;
+
+ofstream file("accounts.txt", ios::app);
+    file << username << " " << password << endl;
+    file.close();
+
+    gotoxy(50, 25); color (9); cout << "Akun berhasil dibuat!" << endl;
+    Sleep(1000);
+}
+
+bool login() {
+    string username, password;
+    gotoxy(57, 20); cout << "=== Login ===" << endl;
+    gotoxy(50, 22); cout << "Username: ";
+    cin >> username;
+    gotoxy(50, 23); cout << "Password: ";
+    cin >> password;
+
+    if (isAccountExist(username, password)) {
+        gotoxy(55, 25); color (9); cout << "Login berhasil!" << endl;
+        Sleep(1000);
+        return true;
+    } else {
+        gotoxy(40, 25); color (12); cout << "Username atau password salah, silakan coba lagi!" << endl;
+        Sleep(1000);
+        return false;
+    }
+}
+
+void drawLoginFrame() {
+    color(14); 
+    gotoxy(35, 9); cout <<  " __| |____________________________________________| |__";
+    gotoxy(35, 10); cout << "(__   ____________________________________________   __)";
+    gotoxy(35, 11); cout << "   | |                                            | |";
+    gotoxy(35, 11); cout << "   | |                                            | |";
+    gotoxy(35, 12); cout << "   | |                                            | |";
+    gotoxy(35, 13); cout << "   | |                                            | |";
+    gotoxy(35, 14); cout << "   | |                                            | |";
+    gotoxy(35, 15); cout << " __| |____________________________________________| |__";
+    gotoxy(35, 16); cout << "(__   ____________________________________________   __)";
+    gotoxy(35, 17); cout << "   | |                                            | |";
+}
+
+bool loginMenu() {
+    int choice = 1;  
+    char key;
+    while (true) {
+        system("cls");
+        
+        drawLoginFrame(); 
+        gotoxy(56, 6); cout << "=== Main Menu ===" << endl;
+        if (choice == 1) {
+            gotoxy(55, 12); color(11); cout << "> Login" << endl;
+            gotoxy(55, 13); color(7); cout << "  Register" << endl;
+            gotoxy(55, 14); color(7); cout << "  Exit" << endl;
+        } else if (choice == 2) {
+            gotoxy(55, 12); color(7); cout << "  Login" << endl;
+            gotoxy(55, 13); color(11); cout << "> Register" << endl;
+            gotoxy(55, 14); color(7); cout << "  Exit" << endl;
+        } else {
+            gotoxy(55, 12); color(7); cout << "  Login" << endl;
+            gotoxy(55, 13); color(7); cout << "  Register" << endl;   
+            gotoxy(55, 14); color(11); cout << "> Exit" << endl;
+        }
+key = _getch();  
+        if (key == 72 && choice > 1) choice--;  
+        if (key == 80 && choice < 3) choice++;  
+        if (key == '\r') {  
+            if (choice == 1) {
+                if (login()) return true;
+            } else if (choice == 2) {
+                registerAccount();
+            } else if (choice == 3) {
+                exit(0);  
+            }
+        }
+    }
 }
 
 void drawMenuFrame() {
@@ -56,6 +153,13 @@ void drawSnakeASCII() {
 
 int main() {
     system("mode con cols=1750 lines=60");
+
+    if (loginMenu()) {  
+    }
+    system("cls");
+    
+    drawSnakeASCII();
+    
     int set[] = {7, 7, 7};
     char counter = 1, key;
     time_t lastTime = time(0);
